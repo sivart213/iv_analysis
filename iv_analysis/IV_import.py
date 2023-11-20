@@ -109,7 +109,7 @@ if __name__ == "__main__":
         data = pd.read_csv(file,sep="\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-4, usecols=[0,1])
         if data["Current (A)"][0] < -5:
             data["Current (A)"] = data["Current (A)"] * -1
-        data["Current Density (mA/cm2)"] = (data["Current (A)"]*1e3)/float(info["A"])
+        data["Current Density (mA/cm\+(2))"] = (data["Current (A)"]*1e3)/float(info["A"])
         
         info_res[file.stem] = info
         data_res[file.stem] = data
