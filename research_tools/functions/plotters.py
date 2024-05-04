@@ -21,8 +21,8 @@ from matplotlib import ticker
 from matplotlib.widgets import Slider, Button
 
 # from research_tools.functions import slugify, p_find, sig_figs_ceil, sci_note
-from research_tools.functions.system_utilities import slugify, p_find
-from research_tools.functions.data_treatment import sig_figs_ceil, sci_note
+from .system_utilities import slugify, p_find
+from .data_treatment import sig_figs_ceil, sci_note
 
 warnings.simplefilter("ignore", np.RankWarning)
 warnings.filterwarnings("ignore")

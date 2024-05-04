@@ -35,7 +35,7 @@ def load_txt(file, header_ident='[[', data_ident="DATA", info_ident="ANALYSIS"):
             n += 1
             
     ind = np.argwhere(np.array(headers) == n_info)[0][0]
-    info = pd.read_csv(file,sep="\**\s*\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-1, index_col=0, usecols=[0,1,2], header=None)
+    info = pd.read_csv(file,sep=r"\**\s*\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-1, index_col=0, usecols=[0,1,2], header=None)
     info = pd.DataFrame(info[1]).T
     
     ind = np.argwhere(np.array(headers) == n_data)[0][0]
@@ -81,38 +81,39 @@ if __name__ == "__main__":
         base="home",
     ))
     
-    info_res = {}
-    data_res = {}
-    for file in files:
-        with open(file) as f:
-            # contents = f.readlines()
-            n=1
-            headers=[]
-            n_info = 0
-            n_data = 0
-            # ind_info = []
-            # ind_data = []
-            for line in f:
-                if "[[" in line:
-                    headers.append(n)
-                if "analysis" in line.lower():
-                    n_info = n
-                if "data" in line.lower():
-                    n_data = n
-                n += 1
+
+    # info_res = {}
+    # data_res = {}
+    # for file in files:
+    #     with open(file) as f:
+    #         # contents = f.readlines()
+    #         n=1
+    #         headers=[]
+    #         n_info = 0
+    #         n_data = 0
+    #         # ind_info = []
+    #         # ind_data = []
+    #         for line in f:
+    #             if "[[" in line:
+    #                 headers.append(n)
+    #             if "analysis" in line.lower():
+    #                 n_info = n
+    #             if "data" in line.lower():
+    #                 n_data = n
+    #             n += 1
                 
-        ind = np.argwhere(np.array(headers) == n_info)[0][0]
-        info = pd.read_csv(file,sep="\**\s*\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-1, index_col=0, usecols=[0,1,2], header=None)
-        info = pd.DataFrame(info[1]).T
+    #     ind = np.argwhere(np.array(headers) == n_info)[0][0]
+    #     info = pd.read_csv(file,sep="\**\s*\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-1, index_col=0, usecols=[0,1,2], header=None)
+    #     info = pd.DataFrame(info[1]).T
         
-        ind = np.argwhere(np.array(headers) == n_data)[0][0]
-        data = pd.read_csv(file,sep="\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-4, usecols=[0,1])
-        if data["Current (A)"][0] < -5:
-            data["Current (A)"] = data["Current (A)"] * -1
-        data["Current Density (mA/cm\+(2))"] = (data["Current (A)"]*1e3)/float(info["A"])
+    #     ind = np.argwhere(np.array(headers) == n_data)[0][0]
+    #     data = pd.read_csv(file,sep="\t", skiprows=headers[ind], nrows=headers[ind+1]-headers[ind]-4, usecols=[0,1])
+    #     if data["Current (A)"][0] < -5:
+    #         data["Current (A)"] = data["Current (A)"] * -1
+    #     data["Current Density (mA/cm\+(2))"] = (data["Current (A)"]*1e3)/float(info["A"])
         
-        info_res[file.stem] = info
-        data_res[file.stem] = data
+    #     info_res[file.stem] = info
+    #     data_res[file.stem] = data
     
-    # save(info_res,save_pth, "info_r1")
-    # save(data_res,save_pth, "data_r1")
+    # # save(info_res,save_pth, "info_r1")
+    # # save(data_res,save_pth, "data_r1")

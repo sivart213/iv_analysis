@@ -22,7 +22,7 @@ from pathlib import Path
 from datetime import datetime as dt
 from inspect import getmembers
 
-from research_tools.functions.data_treatment import (
+from .data_treatment import (
     dict_df,
     dict_flat,
     dict_key_sep,
