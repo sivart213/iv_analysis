@@ -20,7 +20,7 @@ np.seterr(divide="ignore", invalid="ignore")
 
 timestamp = datetime.now().strftime("%Y%m%d_%H-%M")
 
-print_file = ut.pathify("work", "Python Scripts", "Prints", f"{timestamp}.txt")
+print_file = ut.pathify("Python Scripts", "Prints", f"{timestamp}.txt")
 
 # ----- Input Parameters -----
 Mod_T = ut.Temp(25, "C").K  # Temp for part 2

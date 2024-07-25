@@ -49,36 +49,33 @@ def load_txt(file, header_ident='[[', data_ident="DATA", info_ident="ANALYSIS"):
 # %% Operations
 if __name__ == "__main__":
     from pathlib import Path
-    from research_tools.functions import save, p_find, load, f_find
+    from research_tools.functions import save, find_path, load, f_find
     
-    data_pth = p_find(
-        "Dropbox (ASU)",
+    data_pth = find_path(
         "Work Docs",
         "Data",
         "Raw",
         "IV_SolarSim",
         "Leakage_Test1",
-        base="home",
+        base=find_path(r"ASU Dropbox", base="drive"),
     )
     
-    save_pth = p_find(
-        "Dropbox (ASU)",
+    save_pth = find_path(
         "Work Docs",
         "Data",
         "Analysis",
         "IV",
         "Leakage_tests",
-        base="home",
+        base=find_path(r"ASU Dropbox", base="drive"),
     )
     
-    files  = f_find(p_find(
-        "Dropbox (ASU)",
+    files  = find_files(find_path(
         "Work Docs",
         "Data",
         "Raw",
         "IV_SolarSim",
         "Leakage_Test1",
-        base="home",
+        base=find_path(r"ASU Dropbox", base="drive"),
     ))
     
 
