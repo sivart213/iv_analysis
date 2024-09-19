@@ -5,13 +5,13 @@ Created on Tue Sep 15 14:08:01 2020
 @author: j2cle
 """
 import os
-import utilities as ut
+import research_tools as rt
 import iv_analysis_functions_dd_pso as iaf
 
-mainpath = ut.pathify("work", "Data", "Analysis", "IV")
+mainpath = rt.find_path("Data", "Analysis", "IV", base=rt.find_path(r"ASU Dropbox", base="drive"))
 # folderstodo = ["DOW4-2"]
 folderstodo = ["DOW8", "DOW7", "DOW6", "DOW5"]
-myfolders = [os.sep.join((mainpath, x)) for x in folderstodo]
+myfolders = [mainpath / x for x in folderstodo]
 
 for findex in range(len(myfolders)):
     infilename = "".join(("Result_log_", folderstodo[findex], ".xlsx"))

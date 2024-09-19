@@ -49,7 +49,7 @@ def load_txt(file, header_ident='[[', data_ident="DATA", info_ident="ANALYSIS"):
 # %% Operations
 if __name__ == "__main__":
     from pathlib import Path
-    from research_tools.functions import save, find_path, load, f_find
+    from research_tools.functions import save, find_path, load_file, f_find
     
     data_pth = find_path(
         "Work Docs",

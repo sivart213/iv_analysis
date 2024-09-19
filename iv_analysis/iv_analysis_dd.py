@@ -8,7 +8,7 @@ import random
 import openpyxl
 import pandas as pd
 import numpy as np
-import utilities as ut
+import research_tools as rt
 import matplotlib.pyplot as plt
 import iv_analysis_functions_dd_pso as iaf
 from scipy import optimize
@@ -20,10 +20,22 @@ np.seterr(divide="ignore", invalid="ignore")
 
 timestamp = datetime.now().strftime("%Y%m%d_%H-%M")
 
-print_file = ut.pathify("Python Scripts", "Prints", f"{timestamp}.txt")
+def myprint(filename, *info):
+    """Calculate. generic discription."""
+    print_file = open(filename, "a+")
+    args = ""
+    for arg in info:
+        args = args + str(arg)
+    print(args)
+    print(args, file=print_file)
+    print_file.close()
+    return
+
+
+print_file = rt.find_path("Python Scripts", "Prints",base=rt.find_path("ASU Dropbox", base="drive")) /  f"{timestamp}.txt"
 
 # ----- Input Parameters -----
-Mod_T = ut.Temp(25, "C").K  # Temp for part 2
+Mod_T = rt.convert_temp(25, "C", "K")  # Temp for part 2
 
 # ----- Constants -----
 c_time_interval = 10
@@ -68,10 +80,10 @@ c_J0_max = 18
 
 # ----- Import Data -----
 
-mainpath = ut.pathify("work", "Data", "Analysis", "IV")
+mainpath = rt.find_path("Data", "Analysis", "IV", base=rt.find_path("ASU Dropbox", base="drive"))
 folderstodo = ["DOW4-2", "DOW3-2"]
 # folderstodo = ['Viko9','Viko8','Viko7','Viko6']
-myfolders = [os.sep.join((mainpath, x)) for x in folderstodo]
+myfolders = [mainpath / x for x in folderstodo]
 
 for mypath in myfolders:
 
@@ -91,14 +103,14 @@ for mypath in myfolders:
     # Data must be compiled prior to evaluation.  If this file does not exist or new
     # files are missing, the compiler is run then the file is imported
     if "Compiled.xlsx" in filenames:
-        df = pd.ExcelFile(os.sep.join((mypath, "Compiled.xlsx")))
+        df = pd.ExcelFile(mypath / "Compiled.xlsx")
 
         if len(df.sheet_names) != 2 * len(jvst_files):
             iaf.compiler(mypath)
-            df = pd.ExcelFile(os.sep.join((mypath, "Compiled.xlsx")))
+            df = pd.ExcelFile(mypath / "Compiled.xlsx")
     else:
         iaf.compiler(mypath)
-        df = pd.ExcelFile(os.sep.join((mypath, "Compiled.xlsx")))
+        df = pd.ExcelFile(mypath / "Compiled.xlsx")
     # Prepares the dataframe for results
     Result_cols = [
         "Date-Time",
@@ -132,7 +144,7 @@ for mypath in myfolders:
 
     infilename = "Result_log_" + folderstodo[myfolders.index(mypath)]
     if f"{infilename}.xlsx" in filenames:
-        prev_results = pd.read_excel(os.sep.join((mypath, f"{infilename}.xlsx")), index_col=0)
+        prev_results = pd.read_excel(mypath / f"{infilename}.xlsx", index_col=0)
     else:
         l_cut_short = 0
         prev_results = pd.DataFrame(columns=Result_cols)
@@ -163,7 +175,7 @@ for mypath in myfolders:
                 res_p0 = [date_time]
         # Get name of file
         name = df.sheet_names[indexer]
-        ut.myprint(print_file, "-->", name)
+        myprint(print_file, "-->", name)
 
         # ----- Initial IV's -----
         # Bring in previous data set results if desired
@@ -185,7 +197,7 @@ for mypath in myfolders:
 
             # Import Data
             df_data_base_info = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=None,
                 usecols="E,F",
@@ -193,7 +205,7 @@ for mypath in myfolders:
                 skiprows=2,
             ).dropna()
             df_data_elec_info = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=None,
                 usecols="G,H,I",
@@ -210,14 +222,14 @@ for mypath in myfolders:
                 c_area_mask = c_area_init
                 c_area_cell = c_area_init
             df_data_raw_light_iv = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=1,
                 names=["Volt (V)", "J(A/sqcm)"],
                 usecols="A,B",
             ).dropna()
             df_data_raw_dark_iv = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=1,
                 names=["Volt (V)", "J(A/sqcm)"],
@@ -253,7 +265,7 @@ for mypath in myfolders:
                 var_IV_Vmp,
                 var_IV_Jmp,
                 var_IV_Pmp,
-            ) = ut.cell_params(
+            ) = rt.cell_params(
                 df_data_exp_light_iv.iloc[:, 0].to_numpy(),
                 df_data_exp_light_iv.iloc[:, 1].to_numpy(),
             )
@@ -303,16 +315,16 @@ for mypath in myfolders:
             )
 
             res_compiled.loc[name, list_params_return] = np.array(
-                ut.cell_params(data_fit_volt_real, data_fit_curr_real)
+                rt.cell_params(data_fit_volt_real, data_fit_curr_real)
             )[[0, 2, 3, 4, 5]]
         # Start calculation of new data data set
         else:
 
-            ut.myprint(print_file, "Started: ", t_run_time_start)
+            myprint(print_file, "Started: ", t_run_time_start)
 
             # Import Data
             df_data_base_info = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=None,
                 usecols="E,F",
@@ -320,7 +332,7 @@ for mypath in myfolders:
                 skiprows=2,
             ).dropna()
             df_data_elec_info = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=None,
                 usecols="G,H,I",
@@ -337,14 +349,14 @@ for mypath in myfolders:
                 c_area_mask = c_area_init
                 c_area_cell = c_area_init
             df_data_raw_light_iv = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=1,
                 names=["Volt (V)", "J(A/sqcm)"],
                 usecols="A,B",
             ).dropna()
             df_data_raw_dark_iv = pd.read_excel(
-                os.sep.join((mypath, "Compiled.xlsx")),
+                mypath / "Compiled.xlsx",
                 sheet_name=indexer,
                 header=1,
                 names=["Volt (V)", "J(A/sqcm)"],
@@ -380,7 +392,7 @@ for mypath in myfolders:
                 var_IV_Vmp,
                 var_IV_Jmp,
                 var_IV_Pmp,
-            ) = ut.cell_params(
+            ) = rt.cell_params(
                 df_data_exp_light_iv.iloc[:, 0].to_numpy(),
                 df_data_exp_light_iv.iloc[:, 1].to_numpy(),
             )
@@ -410,11 +422,11 @@ for mypath in myfolders:
             )
 
             if var_Rsh_slope <= 0:
-                ut.myprint(print_file, var_Rsh_slope)
+                myprint(print_file, var_Rsh_slope)
                 var_Rsh_slope = 1e5 / c_area_cell
             # print results
-            ut.myprint(print_file, "Rseries slope = ", var_Rs_slope)
-            ut.myprint(print_file, "Rshunt slope = ", var_Rsh_slope)
+            myprint(print_file, "Rseries slope = ", var_Rs_slope)
+            myprint(print_file, "Rshunt slope = ", var_Rsh_slope)
 
             # ----- First PSO: Dark data -----
 
@@ -768,13 +780,13 @@ for mypath in myfolders:
             )
 
             # print results
-            ut.myprint(print_file, "------")
-            ut.myprint(print_file, "Dark Results")
-            ut.myprint(print_file, "GBest = \n", df_dark_gbest.iloc[-1, 1:5].to_string())
-            ut.myprint(print_file, "Iteration = ", var_dark_iters)
-            ut.myprint(print_file, "Out of ", iter_pso)
-            ut.myprint(print_file, "Error = ", df_dark_gbest.iloc[-1, -1])
-            ut.myprint(print_file, "------")
+            myprint(print_file, "------")
+            myprint(print_file, "Dark Results")
+            myprint(print_file, "GBest = \n", df_dark_gbest.iloc[-1, 1:5].to_string())
+            myprint(print_file, "Iteration = ", var_dark_iters)
+            myprint(print_file, "Out of ", iter_pso)
+            myprint(print_file, "Error = ", df_dark_gbest.iloc[-1, -1])
+            myprint(print_file, "------")
 
             # ----- Second PSO: Diode data -----
             t_diode_time_start = datetime.now()
@@ -1105,12 +1117,12 @@ for mypath in myfolders:
             )
 
             # print results
-            ut.myprint(print_file, "Diode Results")
-            ut.myprint(print_file, "GBest = \n", df_diode_gbest.iloc[-1, [0, 5, 6]].to_string())
-            ut.myprint(print_file, "Iteration = ", var_diode_iters)
-            ut.myprint(print_file, "Out of ", iter_pso)
-            ut.myprint(print_file, "Error = ", df_diode_gbest.iloc[-1, -1])
-            ut.myprint(print_file, "------")
+            myprint(print_file, "Diode Results")
+            myprint(print_file, "GBest = \n", df_diode_gbest.iloc[-1, [0, 5, 6]].to_string())
+            myprint(print_file, "Iteration = ", var_diode_iters)
+            myprint(print_file, "Out of ", iter_pso)
+            myprint(print_file, "Error = ", df_diode_gbest.iloc[-1, -1])
+            myprint(print_file, "------")
 
             #### Third PSO: light data ###
 
@@ -1512,7 +1524,7 @@ for mypath in myfolders:
                     plt.text(0.01, 0.001, "Err: %.2e" % df_light_gbest.iloc[-1, 7])
                     plt.text(0.01, 0.011, "Jsc: %.2e" % df_light_gbest.iloc[-1, 0])
                     plt.title(name)
-                    newpath = os.sep.join((dirpath, "Plot_Current.png"))
+                    newpath = dirpath / "Plot_Current.png"
                     plt.savefig(newpath)
                     plt.close("all")
                 # if df_light_gbest.iloc[-1,-1]
@@ -1632,13 +1644,13 @@ for mypath in myfolders:
             df_plog = pd.DataFrame(list_plog[-1000:])
 
             # print results
-            ut.myprint(print_file, "Light Results")
-            ut.myprint(print_file, "Gbest = \n", df_light_gbest_info.iloc[-1, :-1].to_string())
-            ut.myprint(print_file, "On Iteration ", var_light_iters)
-            ut.myprint(print_file, "Out of ", iter_pso)
-            ut.myprint(print_file, "Error = ", df_light_gbest.iloc[-1, -1])
-            ut.myprint(print_file, "------")
-            ut.myprint(print_file, "")
+            myprint(print_file, "Light Results")
+            myprint(print_file, "Gbest = \n", df_light_gbest_info.iloc[-1, :-1].to_string())
+            myprint(print_file, "On Iteration ", var_light_iters)
+            myprint(print_file, "Out of ", iter_pso)
+            myprint(print_file, "Error = ", df_light_gbest.iloc[-1, -1])
+            myprint(print_file, "------")
+            myprint(print_file, "")
 
             # ----- Conclusitory code to save results -----
 
@@ -1663,7 +1675,7 @@ for mypath in myfolders:
             )
 
             res_array = np.append(
-                res_p0, np.array(ut.cell_params(data_fit_volt_real, data_fit_curr_real))
+                res_p0, np.array(rt.cell_params(data_fit_volt_real, data_fit_curr_real))
             )
 
             res_array = np.append(
@@ -1697,7 +1709,7 @@ for mypath in myfolders:
             plt.text(0.01, 0.001, "Err: %.2e" % df_light_gbest.iloc[-1, 7])
             plt.text(0.01, 0.011, "Jsc: %.2e" % df_light_gbest.iloc[-1, 0])
             plt.title(name)
-            newpath = os.sep.join((dirpath, f"{name}.png"))
+            newpath = dirpath / f"{name}.png"
             plt.savefig(newpath)
             plt.close("all")
 
@@ -1714,17 +1726,17 @@ for mypath in myfolders:
         # Save result array to temp file so that each result is saved (in case of
         # error)
         # without disrupting the main result file
-        res_compiled.to_excel(os.sep.join((mypath, "Result_log_temp.xlsx")))
+        res_compiled.to_excel(mypath / "Result_log_temp.xlsx")
 
         if save_gbest:
-            df_plog.to_excel(os.sep.join((dirpath, f"{name}.xlsx")))
+            df_plog.to_excel(dirpath / f"{name}.xlsx")
 
     outlog = "".join(("Result_log_", folderstodo[myfolders.index(mypath)], ".xlsx"))
     outfinal = "".join(("Result_final_", folderstodo[myfolders.index(mypath)], ".xlsx"))
 
     # Save final results and remove temp file
-    res_compiled.to_excel(os.sep.join((mypath, outlog)))
-    os.remove(os.sep.join((mypath, "Result_log_temp.xlsx")))
+    res_compiled.to_excel(mypath / outlog)
+    os.remove(mypath / "Result_log_temp.xlsx")
 
     if 0:
         iaf.iv_stats_dd(mypath, outlog, outfinal)

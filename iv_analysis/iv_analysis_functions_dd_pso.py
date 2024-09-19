@@ -8,7 +8,8 @@ losses are ignored.
 import os
 import numpy as np
 import pandas as pd
-import utilities as ut
+#import utilities as ut
+import research_tools as rt
 
 from scipy import optimize
 from statsmodels.stats.weightstats import DescrStatsW
@@ -20,7 +21,7 @@ np.seterr(divide="ignore", invalid="ignore")
 # def Idiode_fsolver(J, V, params, temp=298.15):
 #     """test"""
 #     # equation constants
-#     k = ut.K_B__EV
+#     k = rt.get_const("boltzmann", unit=["eV", "K"])
 #     vt = params[2] * k * temp
 #     kt = params[4] * k * temp
 
@@ -37,7 +38,7 @@ np.seterr(divide="ignore", invalid="ignore")
 def double_diode_cost(J, V, params, temp=298.15):
     """test"""
     # equation constants
-    k = ut.K_B__EV
+    k = rt.get_const("boltzmann", unit=["eV", "K"])
     vt = params[4] * k * temp
     kt = params[6] * k * temp
 
@@ -102,7 +103,7 @@ def double_diode_pso(params, diode_data, temp=298.15):
 
 
 # def to_excel_sheet(dataframes, path, name, sheet):
-#     with pd.ExcelWriter(os.sep.join((path, f"{name}.xlsx")), engine="xlsxwriter") as writer:
+#     with pd.ExcelWriter(path / f"{name}.xlsx", engine="xlsxwriter") as writer:
 #         workbook = writer.book
 #         worksheet = workbook.add_worksheet(sheet)
 #         writer.sheets[sheet] = worksheet
@@ -136,7 +137,7 @@ def compiler(mypath):
             IV_files.insert(i, str(filename))
             i += 1
 
-    writer = pd.ExcelWriter(os.sep.join((mypath, "Compiled.xlsx")), engine="openpyxl")
+    writer = pd.ExcelWriter(mypath / "Compiled.xlsx", engine="openpyxl")
 
     for indexer in range(0, len(files)):
         # for indexer in test_index:
@@ -292,7 +293,7 @@ def iv_stats_dd(mypath, infile, outfile):
         "RMSE",
     ]
 
-    prev_results = pd.read_excel(os.sep.join((mypath, infile)), index_col=0)
+    prev_results = pd.read_excel(mypath / infile, index_col=0)
 
     prev_results["Date-Time"] = pd.to_datetime(prev_results["Date-Time"], yearfirst=True)
     prev_results[Result_cols[1:]] = prev_results[Result_cols[1:]].astype(float)
@@ -426,5 +427,5 @@ def iv_stats_dd(mypath, infile, outfile):
     mean_res["Date-Time"] = pd.to_datetime(mean_res["Date-Time"], yearfirst=True)
     mean_res[final_cols[1:]] = mean_res[final_cols[1:]].astype(float)
 
-    mean_res.to_excel(os.sep.join((mypath, outfile)))
+    mean_res.to_excel(mypath / outfile)
     return
